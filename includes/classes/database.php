@@ -8,13 +8,13 @@
 class database
 {
 
-    private $linkId = NULL;
     public $_where = array();
+    public $_TOTAL_QUERIES = 0;
     protected $_orderBy = array();
     protected $_groupBy = array();
-    private $lastInsertId;
     protected $_bindParams = array('');
-    public $_TOTAL_QUERIES = 0;
+    private $linkId = NULL;
+    private $lastInsertId;
 
     public function __construct($host, $db, $username, $password)
     {
@@ -74,17 +74,6 @@ class database
         return $this;
     }
 
-    protected function _buildOrderBy()
-    {
-        if (empty($this->_orderBy))
-            return;
-
-        $query = " ORDER BY ";
-        foreach ($this->_orderBy as $prop => $value)
-            $query .= $prop . " " . $value . ", ";
-        return rtrim($query, ', ') . " ";
-    }
-
     public function groupBy($groupByField)
     {
         $groupByField = preg_replace("/[^-a-z0-9\.\(\),_]+/i", '', $groupByField);
@@ -92,56 +81,10 @@ class database
         return $this;
     }
 
-    protected function _buildGroupBy()
-    {
-        if (empty($this->_groupBy))
-            return;
-        $_query = " GROUP BY ";
-        foreach ($this->_groupBy as $key => $value)
-            $_query .= $value . ", ";
-
-        return rtrim($_query, ', ') . " ";
-    }
-
     public function where($whereProp, $whereValue = null)
     {
         $this->_where[] = Array($whereValue, $whereProp);
         return $this;
-    }
-
-    public function buildWhere()
-    {
-        $fields = array();
-
-        foreach ($this->_where as $test) {
-            $value = $test[0];
-            if (is_string($value)) {
-                $value = '"' . $test[0] . '"';
-            }
-            $fields[] = "`{$test[1]}` = $value";
-        }
-
-        $where_sql = implode(' AND ', $fields);
-        if (!empty($where_sql))
-            return 'WHERE ' . $where_sql;
-        return null;
-    }
-
-    public function build($array)
-    {
-        $query = '';
-        foreach ($array as $value) {
-            if (is_string($value)) {
-                $query .= '"' . $value . '"' . ", ";
-                continue;
-            }
-            if (!is_array($value)) {
-                $query .= '' . $value . '' . ", ";
-                continue;
-            }
-        }
-        $query = rtrim($query, ', ');
-        return $query;
     }
 
     public function delete($tableName, $numRows = null)
@@ -160,6 +103,24 @@ class database
         $this->_groupBy = array();
         $botwith->cache['queries'] = $this->_TOTAL_QUERIES;
         return $this->queryResult;
+    }
+
+    public function buildWhere()
+    {
+        $fields = array();
+
+        foreach ($this->_where as $test) {
+            $value = $test[0];
+            if (is_string($value)) {
+                $value = '"' . $test[0] . '"';
+            }
+            $fields[] = "`{$test[1]}` = $value";
+        }
+
+        $where_sql = implode(' AND ', $fields);
+        if (!empty($where_sql))
+            return 'WHERE ' . $where_sql;
+        return null;
     }
 
     public function update($tableName, $tableData)
@@ -215,6 +176,23 @@ class database
         return $this->queryResult;
     }
 
+    public function build($array)
+    {
+        $query = '';
+        foreach ($array as $value) {
+            if (is_string($value)) {
+                $query .= '"' . $value . '"' . ", ";
+                continue;
+            }
+            if (!is_array($value)) {
+                $query .= '' . $value . '' . ", ";
+                continue;
+            }
+        }
+        $query = rtrim($query, ', ');
+        return $query;
+    }
+
     public function insert($tableName, $insertData)
     {
         global $botwith;
@@ -246,6 +224,19 @@ class database
         return $this->queryResult;
     }
 
+    public function getOne($tableName, $columns = '*')
+    {
+        $res = $this->get($tableName, 1, $columns);
+
+        if (is_object($res))
+            return $res;
+
+        if (isset($res[0]))
+            return $res[0];
+
+        return null;
+    }
+
     public function get($tableName, $numRows = null, $columns = '*')
     {
         global $botwith;
@@ -271,17 +262,26 @@ class database
         return $results;
     }
 
-    public function getOne($tableName, $columns = '*')
+    protected function _buildOrderBy()
     {
-        $res = $this->get($tableName, 1, $columns);
+        if (empty($this->_orderBy))
+            return;
 
-        if (is_object($res))
-            return $res;
+        $query = " ORDER BY ";
+        foreach ($this->_orderBy as $prop => $value)
+            $query .= $prop . " " . $value . ", ";
+        return rtrim($query, ', ') . " ";
+    }
 
-        if (isset($res[0]))
-            return $res[0];
+    protected function _buildGroupBy()
+    {
+        if (empty($this->_groupBy))
+            return;
+        $_query = " GROUP BY ";
+        foreach ($this->_groupBy as $key => $value)
+            $_query .= $value . ", ";
 
-        return null;
+        return rtrim($_query, ', ') . " ";
     }
 
     protected function _buildLimit($numRows)
@@ -294,27 +294,6 @@ class database
         else
             $query .= ' LIMIT ' . (int)$numRows;
         return $query;
-    }
-
-    public function interval($diff, $func = "NOW()")
-    {
-        $types = Array("s" => "second", "m" => "minute", "h" => "hour", "d" => "day", "M" => "month", "Y" => "year");
-        $incr = '+';
-        $items = '';
-        $type = 'd';
-
-        if ($diff && preg_match('/([+-]?) ?([0-9]+) ?([a-zA-Z]?)/', $diff, $matches)) {
-            if (!empty($matches[1]))
-                $incr = $matches[1];
-            if (!empty($matches[2]))
-                $items = $matches[2];
-            if (!empty($matches[3]))
-                $type = $matches[3];
-            if (!in_array($type, array_keys($types)))
-                trigger_error("invalid interval type in '{$diff}'");
-            $func .= " " . $incr . " interval " . $items . " " . $types[$type] . " ";
-        }
-        return $func;
     }
 
     public function inc($num = 1)
@@ -361,6 +340,27 @@ class database
     public function now($diff = null, $func = "NOW()")
     {
         return Array("[F]" => Array($this->interval($diff, $func)));
+    }
+
+    public function interval($diff, $func = "NOW()")
+    {
+        $types = Array("s" => "second", "m" => "minute", "h" => "hour", "d" => "day", "M" => "month", "Y" => "year");
+        $incr = '+';
+        $items = '';
+        $type = 'd';
+
+        if ($diff && preg_match('/([+-]?) ?([0-9]+) ?([a-zA-Z]?)/', $diff, $matches)) {
+            if (!empty($matches[1]))
+                $incr = $matches[1];
+            if (!empty($matches[2]))
+                $items = $matches[2];
+            if (!empty($matches[3]))
+                $type = $matches[3];
+            if (!in_array($type, array_keys($types)))
+                trigger_error("invalid interval type in '{$diff}'");
+            $func .= " " . $incr . " interval " . $items . " " . $types[$type] . " ";
+        }
+        return $func;
     }
 
 }
