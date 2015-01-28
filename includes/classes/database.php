@@ -316,27 +316,6 @@ class database
         return Array("[F]" => Array($expr, $bindParams));
     }
 
-    public function interval($diff, $func = "NOW()")
-    {
-        $types = Array("s" => "second", "m" => "minute", "h" => "hour", "d" => "day", "M" => "month", "Y" => "year");
-        $incr = '+';
-        $items = '';
-        $type = 'd';
-
-        if ($diff && preg_match('/([+-]?) ?([0-9]+) ?([a-zA-Z]?)/', $diff, $matches)) {
-            if (!empty($matches[1]))
-                $incr = $matches[1];
-            if (!empty($matches[2]))
-                $items = $matches[2];
-            if (!empty($matches[3]))
-                $type = $matches[3];
-            if (!in_array($type, array_keys($types)))
-                trigger_error("invalid interval type in '{$diff}'");
-            $func .= " " . $incr . " interval " . $items . " " . $types[$type] . " ";
-        }
-        return $func;
-    }
-
     public function now($diff = null, $func = "NOW()")
     {
         return Array("[F]" => Array($this->interval($diff, $func)));
@@ -362,5 +341,4 @@ class database
         }
         return $func;
     }
-
 }
