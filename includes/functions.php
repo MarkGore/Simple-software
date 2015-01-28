@@ -62,4 +62,36 @@ class functions
         return $clean;
     }
 
-} 
+    public function create_session($user)
+    {
+        global $botwith, $db;
+        if ($user->uid > 0) {
+            $db->where('uid', $user->uid);
+            $db->delete('sessions');
+        }
+        $sessionID = md5(uniqid(microtime()));
+        $this->cookie('sid', $sessionID);
+    }
+
+    public function cookie($name, $val, $type = 0)
+    {
+        global $botwith, $db;
+        switch (type) {
+            case 0:
+                //Store the cookie for a day
+                $expiry = time() + 60 * 60 * 24;
+                break;
+            case 1:
+                //store the cookie for ever
+                $expiry = time() - 60 * 60 * 24;
+                break;
+            default:
+                $expiryDate = 0;
+                break;
+        }
+        $_COOKIE[$botwith->config['cookie_prefix'] . $name] = $val;
+        return setcookie($botwith->config['cookie_prefix'] . $name, $val, $expiry, $botwith->config['cookie_path'], $botwith->config['cookie_domain']);
+    }
+
+
+}

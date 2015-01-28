@@ -9,6 +9,9 @@ $config['board_path'] = str_replace('\\', '/', getcwd());
 
 $config['cookie_prefix'] = 'botwith_';
 
+$config['cookie_path'] = '/';
+$config['cookie_domain'] = '';
+
 $config['admin_email'] = 'project-503@live.co.uk';
 
 $config['root_admins'] = '1';

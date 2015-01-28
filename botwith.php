@@ -7,6 +7,7 @@ require(PATH_BOTWITH . 'includes/classes/timer.php');
 $timer = new Timer();
 $timer->start('main');
 include(PATH_BOTWITH . 'config.php');
+
 /**
  * From here we will redirect to install if the site hasn't been installed! :o
  */
