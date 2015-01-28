@@ -62,12 +62,38 @@ class functions
         return $clean;
     }
 
+    public function valid_cookie($cookie_name)
+    {
+        global $botwith;
+        if (isset($_COOKIE[$botwith->config['cookie_prefix'] . $cookie_name])) {
+            return $this->wash_key($_COOKIE[$botwith->config['cookie_prefix'] . $cookie_name]);
+        } else {
+            return false;
+        }
+    }
+
+    public function auth_login($username, $password)
+    {
+        global $botwith, $db;
+        $db->where('username', $username);
+        $user = $db->getOne('users');
+        if (!empty($user)) {
+            if ($user->email_verfied == 0) {
+                return "Please verify your email address";
+            }
+            $this->create_session($user);
+            return 'sucessful';
+            //return $user;
+        }
+        return "invaild username or password";
+    }
+
     public function create_session($user)
     {
         global $botwith, $db;
         if ($user->uid > 0) {
-            $db->where('uid', $user->uid);
-            $db->delete('sessions');
+            //$db->where('uid', $user->uid);
+            //$db->delete('sessions');
         }
         $sessionID = md5(uniqid(microtime()));
         $this->cookie('sid', $sessionID);
@@ -92,6 +118,5 @@ class functions
         $_COOKIE[$botwith->config['cookie_prefix'] . $name] = $val;
         return setcookie($botwith->config['cookie_prefix'] . $name, $val, $expiry, $botwith->config['cookie_path'], $botwith->config['cookie_domain']);
     }
-
 
 }
