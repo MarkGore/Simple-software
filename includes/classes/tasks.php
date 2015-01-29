@@ -25,11 +25,12 @@ class tasks
                 if (file_exists($botwith->config['board_path'] . '/includes/tasks/' . $taskFile . '.php')) {
                     //Parts where we run the task.
                     include($botwith->config['board_path'] . '/includes/tasks/' . $taskFile . '.php');
-                    $task = new $taskFile;
-                    $task->run();
+                    $taskExecutor = new $taskFile;
+                    $taskExecutor->run();
 
                     $nextRun = time() + ($task->task_mins * 60);
-                    $update = array('uid' => $task->uid, 'task_ran' => $nextRun);
+                    $db->where('uid', $task->uid);
+                    $update = array('task_ran' => $nextRun);
                     $db->update('tasks', $update);
                 }
             }

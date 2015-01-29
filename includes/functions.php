@@ -103,7 +103,7 @@ class functions
                 //From here we shall generate the template to view user to display..
                 $data = array('uid' => $botwith->cache['user']->uid, 'name' => $botwith->cache['user']->username,
                     'time' => time(), 'display' => 'test');
-                $db->replace('online', $data);
+                //$db->replace('online', $data);
                 $botwith->cache['user']->guest = false;
             } else {
                 $this->reset_cookie('user');

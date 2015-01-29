@@ -12,12 +12,9 @@ class inactive
     public function run()
     {
         global $db;
-        $time = time() - (15 * 60); //15 mins
+        $time = time() + (15 * 60); //15 mins
 
-        $db->where('time' <= $time);
-        foreach ($db->get('online') as $online) {
-            $db->where('uid', $online->uid);
-            $db->delete('online');
-        }
+        $db->where('time', $time, '<=');
+        $db->delete('online');
     }
 }

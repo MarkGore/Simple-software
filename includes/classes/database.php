@@ -81,9 +81,9 @@ class database
         return $this;
     }
 
-    public function where($whereProp, $whereValue = null)
+    public function where($whereProp, $whereValue = null, $type = "=")
     {
-        $this->_where[] = Array($whereValue, $whereProp);
+        $this->_where[] = Array($whereValue, $whereProp, $type);
         return $this;
     }
 
@@ -108,13 +108,11 @@ class database
     public function buildWhere()
     {
         $fields = array();
-
-        foreach ($this->_where as $test) {
-            $value = $test[0];
-            if (is_string($value)) {
-                $value = '"' . $test[0] . '"';
+        foreach ($this->_where as $column => $value) {
+            if (is_string($value[0])) {
+                $value[0] = '"' . $value[0] . '"';
             }
-            $fields[] = "`{$test[1]}` = $value";
+            $fields[] = "`{$value[1]}` $value[2] $value[0]";
         }
 
         $where_sql = implode(' AND ', $fields);
@@ -291,6 +289,7 @@ class database
             while ($row = mysql_fetch_object($queryResult)) {
                 array_push($results, $row);
             }
+        //echo $query;
         $this->_where = array();
         $this->_orderBy = array();
         $this->_groupBy = array();
