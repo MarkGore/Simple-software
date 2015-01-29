@@ -5,4 +5,12 @@
  * Date: 28/01/2015
  * Time: 00:25
  */
-echo 'SHIT WE GOT TO CLEAN UP';
+class cleanup
+{
+
+    public function run()
+    {
+        global $db;
+    }
+
+}
