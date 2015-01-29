@@ -59,6 +59,7 @@ class botwith
         require(PATH_BOTWITH . 'includes/functions.php');
         $botwith->functions = new functions();
         $botwith->input = $botwith->functions->inputs();
+        $botwith->functions->check_cookies();
     }
 
     function init_session()

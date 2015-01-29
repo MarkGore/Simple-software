@@ -123,6 +123,42 @@ class database
         return null;
     }
 
+    public function replace($tableName, $tableData)
+    {
+        global $botwith;
+        $query = "REPLACE INTO " . $tableName . " (";
+        foreach ($tableData as $column => $value) {
+            $query .= '' . $column . '' . ", ";
+        }
+        $query = rtrim($query, ', ');
+        $query .= ")";
+        $query .= " VALUES(";
+        foreach ($tableData as $column => $value) {
+            if (is_string($value)) {
+                $query .= '"' . $value . '"' . ", ";
+                continue;
+            }
+            if (!is_array($value)) {
+                $query .= '' . $value . '' . ", ";
+                continue;
+            }
+        }
+        $query = rtrim($query, ', ');
+        $query .= ")";
+        $query .= ' ' . $this->buildWhere();
+        try {
+            $this->queryResult = mysql_query($query, $this->linkId);
+            $this->_TOTAL_QUERIES++;
+        } catch (Exception $e) {
+            echo $this->getError();
+        }
+        $this->_where = array();
+        $this->_orderBy = array();
+        $this->_groupBy = array();
+        $botwith->cache['queries'] = $this->_TOTAL_QUERIES;
+        return $this->queryResult;
+    }
+
     public function update($tableName, $tableData)
     {
         global $botwith;
