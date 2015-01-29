@@ -6,7 +6,9 @@ require(PATH_BOTWITH . '/botwith.php');
 $botwith_instance = new botwith();
 
 $botwith_instance->init();
+//echo $botwith->functions->valid_cookie('user');
 
+$botwith->functions->check_cookies();
 if (!empty($botwith->input)) {
     $username = $botwith->input['login'];
     $password = $botwith->input['password'];
@@ -14,6 +16,5 @@ if (!empty($botwith->input)) {
     print_r($test);
 
 }
-
 $render->parse(array('header', 'login', 'footer'));
 ?>

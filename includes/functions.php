@@ -62,6 +62,51 @@ class functions
         return $clean;
     }
 
+    public function check_cookies()
+    {
+        global $db, $botwith;
+        $cookie = $this->valid_cookie('user');
+        if (isset($cookie) && preg_match('%^(\d+)\|([0-9a-fA-F]+)\|(\d+)\|([0-9a-fA-F]+)$%', $cookie, $matches)) {
+            $cookie = array(
+                'user_id' => intval($matches[1]),
+                'password_hash' => $matches[2],
+                'expiration_time' => intval($matches[3]),
+                'cookie_hash' => $matches[4],
+            );
+        }
+        $now = time();
+        //Ignore user_id because 1 is a guest, Darn it guests :(, Then we check there expiry date.
+        if (isset($cookie) && $cookie['user_id'] > 1 && $cookie['expiration_time'] > $now) {
+            //What would be mean if they fuck with our cookies
+            if ($this->forum_hmac($cookie['user_id'] . '|' . $cookie['expiration_time'], '_cookie_hash') != $cookie['cookie_hash']) {
+                //Now we've got to reset the user to a default user and reset it's cookies
+                echo 'ah fuck';
+                return;
+            }
+            //Let's check if there cookie password equals there forum password.
+            $db->where('uid', $cookie['user_id']);
+            $user = $db->getOne('users');
+            if (isset($user)) {
+                //Set the user cache here, So we can call it at a later date without executing a new queriey
+                $botwith->cache['user'] = $user;
+                if ($this->forum_hmac($botwith->cache['user']->password, '_passwordhash') !== $cookie['password_hash']) {
+                    echo 'oh shit password doesn\'t match!!';
+                    //Got to reset the cookie at a later date I guess..
+                    return;
+                }
+                //$db->
+                echo 'Oh shit we got it bob';
+            } else {
+                echo 'invaild details';
+                //Account deleted? Not found? mhm.
+                return;
+            }
+            echo 'hey';
+        } else {
+            //I guess there cookie expired or there a guest?
+        }
+    }
+
     public function valid_cookie($cookie_name)
     {
         global $botwith;
@@ -72,36 +117,47 @@ class functions
         }
     }
 
+    function forum_hmac($data, $key, $raw_output = false)
+    {
+        if (function_exists('hash_hmac'))
+            return hash_hmac('sha1', $data, $key, $raw_output);
+        if (strlen($key) > 64)
+            $key = pack('H*', sha1($key));
+        $key = str_pad($key, 64, chr(0x00));
+        $hmac_opad = str_repeat(chr(0x5C), 64);
+        $hmac_ipad = str_repeat(chr(0x36), 64);
+        for ($i = 0; $i < 64; $i++) {
+            $hmac_opad[$i] = $hmac_opad[$i] ^ $key[$i];
+            $hmac_ipad[$i] = $hmac_ipad[$i] ^ $key[$i];
+        }
+        $hash = sha1($hmac_opad . pack('H*', sha1($hmac_ipad . $data)));
+        if ($raw_output)
+            $hash = pack('H*', $hash);
+        return $hash;
+    }
+
     public function auth_login($username, $password)
     {
         global $botwith, $db;
-        $db->where('username', $username);
+        $db->where('username', $username, 'password', sha1($password));
         $user = $db->getOne('users');
         if (!empty($user)) {
             if ($user->email_verfied == 0) {
                 return "Please verify your email address";
             }
-            $this->create_session($user);
+            $this->create_session($user, 0);
             return 'sucessful';
-            //return $user;
         }
         return "invaild username or password";
     }
 
-    public function create_session($user)
+    public function create_session($user, $type)
     {
         global $botwith, $db;
         if ($user->uid > 0) {
             //$db->where('uid', $user->uid);
             //$db->delete('sessions');
         }
-        $sessionID = md5(uniqid(microtime()));
-        $this->cookie('sid', $sessionID);
-    }
-
-    public function cookie($name, $val, $type = 0)
-    {
-        global $botwith, $db;
         switch (type) {
             case 0:
                 //Store the cookie for a day
@@ -115,6 +171,12 @@ class functions
                 $expiryDate = 0;
                 break;
         }
+        $this->cookie('user', $user->uid . '|' . $this->forum_hmac($user->password, '_passwordhash') . '|' . $expiry . '|' . $this->forum_hmac($user->uid . '|' . $expiry, '_cookie_hash'));
+    }
+
+    public function cookie($name, $val)
+    {
+        global $botwith, $db;
         $_COOKIE[$botwith->config['cookie_prefix'] . $name] = $val;
         return setcookie($botwith->config['cookie_prefix'] . $name, $val, $expiry, $botwith->config['cookie_path'], $botwith->config['cookie_domain']);
     }
