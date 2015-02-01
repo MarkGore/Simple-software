@@ -13,20 +13,19 @@ class timer
 
     function start($name)
     {
-        $starttime = microtime();
-        $starttime = explode(' ', $starttime);
-        $this->timers[$name] = $starttime[0] + $starttime[1];
+        $this->timers[$name] = -microtime(true);
     }
 
     function stop($name, $round = 6)
     {
-        $stoptime = microtime();
-        $stoptime = explode(' ', $stoptime);
-        $stoptime = $stoptime[0] + $stoptime[1];
+        //$stoptime = microtime();
+        //$stoptime = explode(' ', $stoptime);
+        //$stoptime = $stoptime[0] + $stoptime[1];
 
-        $totaltime = $stoptime - $this->timers[$name];
-        $totaltime = round($totaltime, $round);
-
-        return $totaltime;
+        //$totaltime = $stoptime - $this->timers[$name];
+        //$totaltime = round($totaltime, $round);
+        $time = $this->timers[$name];
+        $time += microtime(true);
+        return round($time, $round);
     }
 }

@@ -35,10 +35,9 @@ class theme
         if (!is_array($class) && isset($temp)) {
             $data = $temp->template;
             if ($class == 'footer') {
-                $botwith->cache['main_timer'] = $timer->stop('main', 12);
+                $botwith->cache['main_timer'] = $timer->stop('main', 3);
             }
             eval("\$data = \"$data\";");
-
             return $data;
         }
         return null;
