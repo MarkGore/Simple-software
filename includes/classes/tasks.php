@@ -22,9 +22,9 @@ class tasks
         foreach ($tasks as $task) {
             if ($task->task_ran <= time()) {
                 $taskFile = $task->task_file;
-                if (file_exists($botwith->config['board_path'] . '/includes/tasks/' . $taskFile . '.php')) {
+                if (file_exists(PATH_BOTWITH . '/includes/tasks/' . $taskFile . '.php')) {
                     //Parts where we run the task.
-                    include($botwith->config['board_path'] . '/includes/tasks/' . $taskFile . '.php');
+                    include(PATH_BOTWITH . '/includes/tasks/' . $taskFile . '.php');
                     $taskExecutor = new $taskFile;
                     $taskExecutor->execute();
 

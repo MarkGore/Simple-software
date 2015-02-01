@@ -1,6 +1,6 @@
 <?php
-
 error_reporting(E_ERROR | E_PARSE | E_WARNING);
+define('PATH_BOTWITH', str_replace('\\', '/', getcwd()) . '/');
 
 require(PATH_BOTWITH . 'includes/classes/timer.php');
 $timer = new Timer();

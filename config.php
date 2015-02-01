@@ -5,7 +5,6 @@ $config['db_database'] = 'botwith';
 $config['db_username'] = 'root';
 $config['db_password'] = '';
 
-$config['board_path'] = str_replace('\\', '/', getcwd());
 
 $config['cookie_prefix'] = 'botwith_';
 

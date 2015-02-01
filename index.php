@@ -1,7 +1,7 @@
 <?php
-define('PATH_BOTWITH', str_replace('\\', '/', getcwd()) . '/');
 
-require(PATH_BOTWITH . '/botwith.php');
+require('/botwith.php');
+
 $botwith_instance = new botwith();
 $botwith_instance->init();
 
