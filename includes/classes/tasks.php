@@ -26,7 +26,7 @@ class tasks
                     //Parts where we run the task.
                     include($botwith->config['board_path'] . '/includes/tasks/' . $taskFile . '.php');
                     $taskExecutor = new $taskFile;
-                    $taskExecutor->run();
+                    $taskExecutor->execute();
 
                     $nextRun = time() + ($task->task_mins * 60);
                     $db->where('uid', $task->uid);

@@ -8,7 +8,7 @@
 class cleanup
 {
 
-    public function run()
+    public function execute()
     {
         global $db;
     }

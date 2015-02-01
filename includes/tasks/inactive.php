@@ -9,7 +9,7 @@
 class inactive
 {
 
-    public function run()
+    public function execute()
     {
         global $db;
         $time = time() + (15 * 60); //15 mins

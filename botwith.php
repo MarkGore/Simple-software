@@ -2,7 +2,6 @@
 
 error_reporting(E_ERROR | E_PARSE | E_WARNING);
 
-define('BOTWITH_VERSION', '1.0'); // [MAJOR].[MINOR]
 require(PATH_BOTWITH . 'includes/classes/timer.php');
 $timer = new Timer();
 $timer->start('main');
@@ -74,6 +73,16 @@ class botwith
         global $botwith;
         include(PATH_BOTWITH . 'includes/classes/tasks.php');
         $tasks = new Tasks();
+    }
+
+    function init_module($module)
+    {
+        $file = PATH_BOTWITH . '/modules/' . $module . '.php';
+        if (file_exists($file)) {
+            require_once($file);
+            $mod = new $module;
+            $mod->execute();
+        }
     }
 
 }
