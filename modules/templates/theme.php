@@ -7,7 +7,11 @@ class theme
     function theme()
     {
         global $timer, $db, $botwith;
-        $this->templates = $db->get('templates');
+        $temp = $db->get('templates');
+        foreach ($db->get('templates') as $temp) {
+            $this->templates[$temp->title] = $temp;
+        }
+        //$this->templates = $db->get('templates');
     }
 
     function parse($class)
@@ -19,23 +23,23 @@ class theme
                     print $parse;
                 }
             }
+        } else {
+            print $this->get($class);
         }
-        print $this->get($class);
     }
 
-    function get($class)
+    private function get($class)
     {
         global $timer, $db, $botwith;
-        foreach ($this->templates as $template) {
-            if ($template->title == $class) {
-                $data = $template->template;
-                if ($class == 'footer') {
-                    $botwith->cache['main_timer'] = $timer->stop('main', 12);
-                }
-                eval("\$data = \"$data\";");
-
-                return $data;
+        $temp = $this->templates[$class];
+        if (!is_array($class) && isset($temp)) {
+            $data = $temp->template;
+            if ($class == 'footer') {
+                $botwith->cache['main_timer'] = $timer->stop('main', 12);
             }
+            eval("\$data = \"$data\";");
+
+            return $data;
         }
         return null;
     }

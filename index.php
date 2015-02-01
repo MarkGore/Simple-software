@@ -6,8 +6,8 @@ $botwith_instance = new botwith();
 $botwith_instance->init();
 
 $render->parse(array('header'));
-
-foreach ($db->get('categories') as $forum) {
+$cates = $db->get('categories');
+foreach ($cates as $forum) {
 
     $botwith->cache['cate'] = new stdClass();
     $botwith->cache['cate']->title = $forum->title;
@@ -15,7 +15,6 @@ foreach ($db->get('categories') as $forum) {
 
     //print_r($forum);
 }
-
 
 $render->parse(array('online', 'footer'));
 ?>
