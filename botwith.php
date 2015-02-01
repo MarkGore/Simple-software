@@ -48,7 +48,6 @@ class botwith
     {
         global $botwith;
         $this->init_functions();
-        $this->init_session();
         $this->init_cache();
         $this->init_tasks();
     }
@@ -60,17 +59,6 @@ class botwith
         $botwith->functions = new functions();
         $botwith->input = $botwith->functions->inputs();
         $botwith->functions->check_cookies();
-    }
-
-    function init_session()
-    {
-        global $botwith;
-        foreach ($_COOKIE as $cook => $dat) {
-            if (strpos($cook, $botwith->config['cookie_prefix'])) {
-                $cook = str_replace($botwith->config['cookie_prefix'], '', $cook);
-                echo wash_key($dat);
-            }
-        }
     }
 
     function init_cache()

@@ -109,16 +109,21 @@ class database
     {
         $fields = array();
         foreach ($this->_where as $column => $value) {
-            if (is_string($value[0])) {
-                $value[0] = '"' . $value[0] . '"';
+            $trimmedValue = $this->escape($value[0]);
+            if (is_string($trimmedValue)) {
+                $trimmedValue = '"' . $trimmedValue . '"';
             }
-            $fields[] = "`{$value[1]}` $value[2] $value[0]";
+            $fields[] = "`{$value[1]}` $value[2] $trimmedValue";
         }
-
         $where_sql = implode(' AND ', $fields);
         if (!empty($where_sql))
             return 'WHERE ' . $where_sql;
         return null;
+    }
+
+    public function escape($escaped)
+    {
+        return mysql_real_escape_string($escaped);
     }
 
     public function replace($tableName, $tableData)

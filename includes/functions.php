@@ -65,7 +65,7 @@ class functions
     public function loggedin()
     {
         global $botwith;
-        return isset($botwith->cache['user']);
+        return $botwith->cache['user']->guest ? FALSE : true;
     }
 
     public function check_cookies()
@@ -102,14 +102,20 @@ class functions
                 }
                 //From here we shall generate the template to view user to display..
                 $data = array('uid' => $botwith->cache['user']->uid, 'name' => $botwith->cache['user']->username,
-                    'time' => time(), 'display' => 'test');
-                //$db->replace('online', $data);
+                    'ip' => $_SERVER['REMOTE_ADDR'], 'time' => time(), 'display' => 'test');
+                $db->replace('online', $data);
                 $botwith->cache['user']->guest = false;
             } else {
                 $this->reset_cookie('user');
                 return;
             }
         } else {
+            //Stops the php warning
+            $botwith->cache['user'] = new stdClass();
+            $botwith->cache['user']->guest = true;
+            $data = array('uid' => '-1', 'name' => 'guest', 'ip' => $_SERVER['REMOTE_ADDR'],
+                'time' => time(), 'display' => 'test');
+            $db->replace('online', $data);
             //I guess there cookie expired or there a guest?
         }
     }

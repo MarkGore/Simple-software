@@ -13,7 +13,7 @@ if ($botwith->functions->loggedin()) {
 if (isset($botwith->input)) {
     $username = $botwith->input['login'];
     $password = $botwith->input['password'];
-    $botwith->functions->auth_login($username, $password);
+    echo $botwith->functions->auth_login($username, $password);
 }
 $render->parse(array('header', isset($botwith->cache['danger-alert']) ? 'alert-danger' : '', 'login', 'footer'));
 ?>

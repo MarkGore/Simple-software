@@ -30,7 +30,7 @@ class theme
             if ($template->title == $class) {
                 $data = $template->template;
                 if ($class == 'footer') {
-                    $botwith->cache['main_timer'] = $timer->stop('main', 2);
+                    $botwith->cache['main_timer'] = $timer->stop('main', 12);
                 }
                 eval("\$data = \"$data\";");
 
@@ -38,5 +38,11 @@ class theme
             }
         }
         return null;
+    }
+
+    function render($data)
+    {
+        eval("\$data = \"$data\";");
+        print $data;
     }
 }
